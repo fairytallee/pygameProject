@@ -4,8 +4,8 @@ import os
 import time
 from player import Player
 
-WIN_WIDTH = 800  # Ширина создаваемого окна
-WIN_HEIGHT = 640  # Высота
+
+WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 size = (WIN_WIDTH, WIN_HEIGHT)  # Группируем ширину и высоту в одну переменную
 
 pygame.init()  # Инициация PyGame, обязательная строчка
@@ -87,6 +87,31 @@ def generate_level(level):
     return new_player, x, y
 
 
+class Camera(object):
+    def __init__(self, camera_func, width, height):
+        self.camera_func = camera_func
+        self.state = Rect(0, 0, width, height)
+
+    def apply(self, target):
+        return target.rect.move(self.state.topleft)
+
+    def update(self, target):
+        self.state = self.camera_func(self.state, target.rect)
+
+
+def camera_configure(camera, target_rect):
+    l, t, _, _ = target_rect
+    _, _, w, h = camera
+    l, t = -l + WIN_WIDTH / 2, -t + WIN_HEIGHT / 2
+
+    # l = min(0, l)  # Не движемся дальше левой границы
+    # l = max(-(camera.width - WIN_WIDTH), l)  # Не движемся дальше правой границы
+    # t = max(-(camera.height - WIN_HEIGHT), t)  # Не движемся дальше нижней границы
+    # t = min(0, t)  # Не движемся дальше верхней границы
+
+    return Rect(l, t, w, h)
+
+
 # Объявляем переменные
 FPS = 60
 
@@ -94,7 +119,6 @@ PLATFORM_WIDTH = 80
 PLATFORM_HEIGHT = 80
 PLATFORM_COLOR = "black"
 BACKGROUND_COLOR = "white"
-
 
 tile_images = {
     'wall': load_image('wall.png'),
@@ -110,55 +134,104 @@ level_map = load_level('map.map')
 hero, max_x, max_y = generate_level(level_map)
 entity_group.add(hero)
 
+total_level_width = (max_x + 1) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
+total_level_height = (max_y + 1) * PLATFORM_HEIGHT  # высоту
+
+camera = Camera(camera_configure, total_level_width, total_level_height)
+
 clock = pygame.time.Clock()
 
 left = False
 right = False
 up = False
 
+camera.update(hero)
+
+
+def menu_pause(screen):
+
+    sur = pygame.Surface((500, 600))
+    sur.fill((150, 150, 150, 100))
+    screen.blit(sur, ((WIN_WIDTH // 2) - 250, (WIN_HEIGHT // 2) - 300))
+    # pygame.draw.rect(screen, (207, 207, 207, 127), ((WIN_WIDTH // 2) - 250, (WIN_HEIGHT // 2) - 250, 500, 500))500
+
+    pause_text = ["Не боись, это меню паузы", "Тыкни пробел"]
+    font = pygame.font.Font(None, 50)
+    offset_down = 0
+    for line in pause_text:
+        text = font.render(line, True, (255, 255, 255, 1))
+        text_x = WIN_WIDTH // 2 - text.get_width() // 2
+        text_y = ((WIN_HEIGHT // 2 - text.get_height() // 2) - 250) + offset_down
+        text_w = text.get_width()
+        text_h = text.get_height()
+        screen.blit(text, (text_x, text_y))
+        offset_down += 50
+
 
 def main():
     global left, right, up
     pygame.display.set_caption("test")
-    # будем использовать как фо
 
-    running = True
+    running, pause, process = 1, 0, True
+    state = running
 
-    while running:  # Основной цикл программы
-        for event in pygame.event.get():  # Обрабатываем события
-            if event.type == QUIT:
-                running = False
-            if event.type == KEYDOWN and event.key == K_LEFT:
-                left = True
-            if event.type == KEYDOWN and event.key == K_RIGHT:
-                right = True
+    while process:  # Основной цикл программы
+        if state == running:
+            for event in pygame.event.get():  # Обрабатываем события
+                if event.type == QUIT:
+                    process = False
+                if event.type == KEYDOWN and event.key == K_LEFT:
+                    left = True
+                if event.type == KEYDOWN and event.key == K_RIGHT:
+                    right = True
 
-            if event.type == KEYUP and event.key == K_RIGHT:
-                right = False
-            if event.type == KEYUP and event.key == K_LEFT:
-                left = False
+                if event.type == KEYUP and event.key == K_RIGHT:
+                    right = False
+                if event.type == KEYUP and event.key == K_LEFT:
+                    left = False
 
-            if event.type == KEYDOWN and event.key == K_LEFT:
-                left = True
-            if event.type == KEYDOWN and event.key == K_RIGHT:
-                right = True
+                if event.type == KEYDOWN and event.key == K_LEFT:
+                    left = True
+                if event.type == KEYDOWN and event.key == K_RIGHT:
+                    right = True
 
-            if event.type == KEYUP and event.key == K_RIGHT:
-                right = False
-            if event.type == KEYUP and event.key == K_LEFT:
-                left = False
+                if event.type == KEYUP and event.key == K_RIGHT:
+                    right = False
+                if event.type == KEYUP and event.key == K_LEFT:
+                    left = False
 
-            if event.type == KEYDOWN and event.key == K_UP:
-                up = True
+                if event.type == KEYDOWN and event.key == K_UP:
+                    up = True
 
-            if event.type == KEYUP and event.key == K_UP:
-                up = False
+                if event.type == KEYUP and event.key == K_UP:
+                    up = False
 
-        screen.fill('black')
-        all_sprites.draw(screen)
-        entity_group.draw(screen)
-        hero.update(left, right, up, tiles_group)
-        entity_group.draw(screen)
+                if event.type == KEYDOWN and event.key == K_ESCAPE:
+                    state = pause
+                    up = False
+                    left = False
+                    right = False
+
+            screen.fill('black')
+
+            camera.update(hero)
+
+            for spr in all_sprites:
+                screen.blit(spr.image, camera.apply(spr))
+            for e in entity_group:
+                screen.blit(e.image, camera.apply(e))
+            hero.update(left, right, up, tiles_group)
+
+        elif state == pause:
+            for event in pygame.event.get():  # Обрабатываем события
+                if event.type == QUIT:
+                    process = False
+                if event.type == KEYDOWN and event.key == K_SPACE:
+                    state = running
+                    # screen.fill('black')
+
+            menu_pause(screen)
+
         clock.tick(FPS)
         pygame.display.flip()
 
