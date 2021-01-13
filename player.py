@@ -1,4 +1,6 @@
+import pygame
 from pygame import *
+import math
 
 JUMP_POWER = 10
 GRAVITY = 0.35 # Сила, которая будет тянуть нас вниз
@@ -7,6 +9,27 @@ MOVE_SPEED = 7
 WIDTH = 20
 HEIGHT = 50
 COLOR = "white"
+
+sprites = pygame.sprite.Group()
+bullets = pygame.sprite.Group()
+
+
+class Bullet(sprite.Sprite):
+    def __init__(self, x, y, speedx, speedy):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((10, 10))
+        self.image.fill((0, 0, 255))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.speedx = speedx
+        self.speedy = speedy
+
+    def update_bullet(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > 600 or self.rect.left > 1200:
+            self.kill()
 
 
 class Player(sprite.Sprite):
@@ -23,6 +46,7 @@ class Player(sprite.Sprite):
         self.image.fill(Color(COLOR))
         self.rect = Rect(x, y, WIDTH, HEIGHT)
         self.pos = (self.rect.x, self.rect.y)
+        self.speed = 1
 
     def update(self, left, right, up, platforms):
         if left:
@@ -66,3 +90,24 @@ class Player(sprite.Sprite):
                 if yvel < 0:                      # если движется вверх
                     self.rect.top = p.rect.bottom # то не движется вверх
                     self.yvel = 0                 # и энергия прыжка пропадает
+
+    def Shoot (self, sprite_Group):
+        pos_x = pygame.mouse.get_pos()[0]
+        pos_y = pygame.mouse.get_pos()[1]
+
+        if pos_x != self.rect.centerx or pos_y != self.rect.centery:
+            self.a = pos_x - self.rect.centerx
+            self.b = self.rect.centery - pos_y
+            self.c = math.hypot(self.a, self.b)
+            self.t = self.c/self.speed
+            speed_x = self.a/self.t
+            speed_y = -self.b/self.t
+            bullet = Bullet(self.rect.centerx, self.rect.centery, speed_x, speed_y)
+            sprite_Group.add(bullet)
+            bullets.add(bullet)
+
+        else:
+            bullet = Bullet(self.rect.centerx, self.rect.centery, 0, 50)
+            sprites.add(bullet)
+            bullets.add(bullet)
+

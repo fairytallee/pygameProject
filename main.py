@@ -1,7 +1,8 @@
 import pygame
 from pygame import *
 import os
-import time
+
+
 from player import Player
 
 
@@ -140,7 +141,6 @@ total_level_height = (max_y + 1) * PLATFORM_HEIGHT  # высоту
 camera = Camera(camera_configure, total_level_width, total_level_height)
 
 clock = pygame.time.Clock()
-
 left = False
 right = False
 up = False
@@ -169,7 +169,7 @@ def menu_pause(screen):
 
 
 def main():
-    global left, right, up
+    global left, right, up, hero
     pygame.display.set_caption("test")
 
     running, pause, process = 1, 0, True
@@ -201,6 +201,13 @@ def main():
                     up = False
                     left = False
                     right = False
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        hero.Shoot(all_sprites)
+                        bullet = list(all_sprites)[-1]
+                        bullet.update_bullet()
+
 
             screen.fill('black')
 
