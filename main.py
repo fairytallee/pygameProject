@@ -214,13 +214,14 @@ def main():
 
             camera.update(hero)
 
+            for bul in entity_group:
+                if isinstance(bul, Bullet):
+                    bul.update_bullet()
+
             for spr in all_sprites:
                 screen.blit(spr.image, camera.apply(spr))
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
-            for bul in entity_group:
-                if isinstance(bul, Bullet):
-                    bul.update_bullet()
             hero.update(left, right, up, tiles_group)
 
         elif state == pause:
