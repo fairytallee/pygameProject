@@ -214,7 +214,7 @@ def main():
 
             camera.update(hero)
             for bul in entity_group:
-                if bul == Bullet:
+                if isinstance(bul, Bullet):
                     bul.update_bullet()
 
             for spr in all_sprites:
