@@ -213,15 +213,14 @@ def main():
             screen.fill('black')
 
             camera.update(hero)
+            for bul in entity_group:
+                if bul == Bullet:
+                    bul.update_bullet()
 
             for spr in all_sprites:
                 screen.blit(spr.image, camera.apply(spr))
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
-            for bul in entity_group:
-                if bul == Bullet:
-                    bul.update_bullet()
-            # entity_group.update()
             hero.update(left, right, up, tiles_group)
 
         elif state == pause:
