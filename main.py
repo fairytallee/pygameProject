@@ -219,7 +219,7 @@ def main():
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
             for bul in entity_group:
-                if bul == Bullet:
+                if isinstance(bul, Bullet):
                     bul.update_bullet()
             hero.update(left, right, up, tiles_group)
 
