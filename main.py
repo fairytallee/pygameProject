@@ -191,9 +191,9 @@ def main():
                 if event.type == KEYUP and event.key == K_d:
                     right = False
 
-                if event.type == KEYDOWN and event.key == K_w:
+                if event.type == KEYDOWN and (event.key == K_w or event.key == K_SPACE):
                     up = True
-                if event.type == KEYUP and event.key == K_w:
+                if event.type == KEYUP and (event.key == K_w or event.key == K_SPACE):
                     up = False
 
                 if event.type == KEYDOWN and event.key == K_ESCAPE:
