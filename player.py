@@ -50,7 +50,7 @@ class Player(sprite.Sprite):
         self.image.fill(Color(COLOR))
         self.rect = Rect(x, y, WIDTH, HEIGHT)
         self.pos = (self.rect.x, self.rect.y)
-        self.speed = 1
+        self.speed = 10
 
     def update(self, left, right, up, platforms):
         if left:
@@ -96,16 +96,24 @@ class Player(sprite.Sprite):
                     self.yvel = 0  # и энергия прыжка пропадает
 
     def Shoot(self, entity_group):
-        pos_x = pygame.mouse.get_pos()[0]
-        pos_y = pygame.mouse.get_pos()[1]
+        pos_mouse_x = pygame.mouse.get_pos()[0]
+        pos_mouse_y = pygame.mouse.get_pos()[1]
 
-        if pos_x != self.rect.centerx or pos_y != self.rect.centery:
-            self.a = pos_x - self.rect.centerx
-            self.b = self.rect.centery - pos_y
-            self.c = math.hypot(self.a, self.b)
-            self.t = self.c / self.speed
-            speed_x = self.a / self.t
-            speed_y = -self.b / self.t
+        if pos_mouse_x != self.rect.centerx or pos_mouse_y != self.rect.centery:
+
+            self.a = pos_mouse_x - self.rect.centerx
+            self.b = pos_mouse_y - self.rect.centery
+
+            fTime = pos_mouse_x // self.speed
+
+            speed_x = self.speed
+            speed_y = self.b // fTime
+            # self.a = pos_mouse_x - self.rect.centerx
+            # self.b = self.rect.centery - pos_mouse_y
+            # self.c = math.hypot(self.a, self.b)
+            # self.t = self.c / self.speed
+            # speed_x = self.a / self.t
+            # speed_y = -self.b / self.t
             bullet = Bullet(self.rect.centerx, self.rect.centery, speed_x, speed_y)
             entity_group.add(bullet)
             bullets.add(bullet)
