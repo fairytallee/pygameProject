@@ -88,14 +88,14 @@ class Player(sprite.Sprite):
 
                 if yvel > 0:  # если падает вниз
                     self.rect.bottom = p.rect.top  # то не падает вниз
-                    self.onGround = True  # и становится на что-то твердое
+                    self    .onGround = True  # и становится на что-то твердое
                     self.yvel = 0  # и энергия падения пропадает
 
                 if yvel < 0:  # если движется вверх
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     self.yvel = 0  # и энергия прыжка пропадает
 
-    def Shoot(self, entity_group):
+    def shoot(self, entity_group):
         pos_x = pygame.mouse.get_pos()[0]
         pos_y = pygame.mouse.get_pos()[1]
 

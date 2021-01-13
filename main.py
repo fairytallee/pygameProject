@@ -4,6 +4,7 @@ import os
 
 
 from player import Player
+from player import Bullet
 
 
 WIN_WIDTH, WIN_HEIGHT = 1920, 1080
@@ -129,6 +130,7 @@ tile_images = {
 tiles_group = SpriteGroup()
 all_sprites = SpriteGroup()
 entity_group = SpriteGroup()
+bullet_group = SpriteGroup()
 
 level_map = load_level('map.map')
 
@@ -204,8 +206,8 @@ def main():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        hero.Shoot(all_sprites)
-                        bullet = list(all_sprites)[-1]
+                        hero.shoot(entity_group)
+                        bullet = list(entity_group)[-1]
                         bullet.update_bullet()
 
             screen.fill('black')
@@ -216,7 +218,10 @@ def main():
                 screen.blit(spr.image, camera.apply(spr))
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
-            entity_group.update()
+            for bul in entity_group:
+                if bul == Bullet:
+                    bul.update_bullet()
+            # entity_group.update()
             hero.update(left, right, up, tiles_group)
 
         elif state == pause:
