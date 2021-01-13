@@ -44,7 +44,7 @@ def load_level(filename):
 class ScreenFrame(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        self.rect = (0, 0, 800, 640)
+        self.rect = (0, 0, 1920, 1080)
 
 
 class SpriteGroup(pygame.sprite.Group):
