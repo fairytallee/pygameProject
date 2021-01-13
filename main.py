@@ -208,7 +208,6 @@ def main():
                         bullet = list(all_sprites)[-1]
                         bullet.update_bullet()
 
-
             screen.fill('black')
 
             camera.update(hero)
@@ -217,6 +216,7 @@ def main():
                 screen.blit(spr.image, camera.apply(spr))
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
+            entity_group.update()
             hero.update(left, right, up, tiles_group)
 
         elif state == pause:
