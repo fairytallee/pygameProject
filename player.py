@@ -1,9 +1,10 @@
 import pygame
 from pygame import *
 import math
+import time
 
 JUMP_POWER = 10
-GRAVITY = 0.35 # Сила, которая будет тянуть нас вниз
+GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
 
 MOVE_SPEED = 7
 WIDTH = 20
@@ -20,6 +21,8 @@ class Bullet(sprite.Sprite):
         self.image = pygame.Surface((10, 10))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
+        self.x0 = x
+        self.y0 = y
         self.rect.x = x
         self.rect.y = y
         self.speedx = speedx
@@ -28,7 +31,8 @@ class Bullet(sprite.Sprite):
     def update_bullet(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.bottom < 0 or self.rect.right < 0 or self.rect.top > 600 or self.rect.left > 1200:
+        if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000\
+                or self.rect.y - self.y0 == 3000 or self.y0 - self.rect.y == 3000:
             self.kill()
 
 
@@ -74,24 +78,24 @@ class Player(sprite.Sprite):
 
     def collide(self, xvel, yvel, platforms):
         for p in platforms:
-            if sprite.collide_rect(self, p): # если есть пересечение платформы с игроком
+            if sprite.collide_rect(self, p):  # если есть пересечение платформы с игроком
 
-                if xvel > 0:                      # если движется вправо
-                    self.rect.right = p.rect.left # то не движется вправо
+                if xvel > 0:  # если движется вправо
+                    self.rect.right = p.rect.left  # то не движется вправо
 
-                if xvel < 0:                      # если движется влево
-                    self.rect.left = p.rect.right # то не движется влево
+                if xvel < 0:  # если движется влево
+                    self.rect.left = p.rect.right  # то не движется влево
 
-                if yvel > 0:                      # если падает вниз
-                    self.rect.bottom = p.rect.top # то не падает вниз
-                    self.onGround = True          # и становится на что-то твердое
-                    self.yvel = 0                 # и энергия падения пропадает
+                if yvel > 0:  # если падает вниз
+                    self.rect.bottom = p.rect.top  # то не падает вниз
+                    self.onGround = True  # и становится на что-то твердое
+                    self.yvel = 0  # и энергия падения пропадает
 
-                if yvel < 0:                      # если движется вверх
-                    self.rect.top = p.rect.bottom # то не движется вверх
-                    self.yvel = 0                 # и энергия прыжка пропадает
+                if yvel < 0:  # если движется вверх
+                    self.rect.top = p.rect.bottom  # то не движется вверх
+                    self.yvel = 0  # и энергия прыжка пропадает
 
-    def Shoot (self, sprite_Group):
+    def Shoot(self, entity_group):
         pos_x = pygame.mouse.get_pos()[0]
         pos_y = pygame.mouse.get_pos()[1]
 
@@ -99,15 +103,14 @@ class Player(sprite.Sprite):
             self.a = pos_x - self.rect.centerx
             self.b = self.rect.centery - pos_y
             self.c = math.hypot(self.a, self.b)
-            self.t = self.c/self.speed
-            speed_x = self.a/self.t
-            speed_y = -self.b/self.t
+            self.t = self.c / self.speed
+            speed_x = self.a / self.t
+            speed_y = -self.b / self.t
             bullet = Bullet(self.rect.centerx, self.rect.centery, speed_x, speed_y)
-            sprite_Group.add(bullet)
+            entity_group.add(bullet)
             bullets.add(bullet)
 
         else:
             bullet = Bullet(self.rect.centerx, self.rect.centery, 0, 50)
             sprites.add(bullet)
             bullets.add(bullet)
-
