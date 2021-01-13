@@ -221,7 +221,6 @@ def main():
             for bul in entity_group:
                 if bul == Bullet:
                     bul.update_bullet()
-            # entity_group.update()
             hero.update(left, right, up, tiles_group)
 
         elif state == pause:
