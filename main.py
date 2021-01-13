@@ -180,30 +180,20 @@ def main():
             for event in pygame.event.get():  # Обрабатываем события
                 if event.type == QUIT:
                     process = False
-                if event.type == KEYDOWN and event.key == K_LEFT:
-                    left = True
-                if event.type == KEYDOWN and event.key == K_RIGHT:
-                    right = True
 
-                if event.type == KEYUP and event.key == K_RIGHT:
-                    right = False
-                if event.type == KEYUP and event.key == K_LEFT:
+                if event.type == KEYDOWN and event.key == K_a:
+                    left = True
+                if event.type == KEYUP and event.key == K_a:
                     left = False
 
-                if event.type == KEYDOWN and event.key == K_LEFT:
-                    left = True
-                if event.type == KEYDOWN and event.key == K_RIGHT:
+                if event.type == KEYDOWN and event.key == K_d:
                     right = True
-
-                if event.type == KEYUP and event.key == K_RIGHT:
+                if event.type == KEYUP and event.key == K_d:
                     right = False
-                if event.type == KEYUP and event.key == K_LEFT:
-                    left = False
 
-                if event.type == KEYDOWN and event.key == K_UP:
+                if event.type == KEYDOWN and event.key == K_w:
                     up = True
-
-                if event.type == KEYUP and event.key == K_UP:
+                if event.type == KEYUP and event.key == K_w:
                     up = False
 
                 if event.type == KEYDOWN and event.key == K_ESCAPE:
