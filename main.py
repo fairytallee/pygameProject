@@ -6,11 +6,11 @@ import os
 from player import Player
 from player import Bullet
 
-
-WIN_WIDTH, WIN_HEIGHT = 1920, 1080
+WIN_WIDTH, WIN_HEIGHT = 800, 600
+# WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 size = (WIN_WIDTH, WIN_HEIGHT)  # Группируем ширину и высоту в одну переменную
 
-pygame.init()  # Инициация PyGame, обязательная строчка
+pygame.init()
 screen = pygame.display.set_mode(size)  # Создаем окошко
 screen.fill('black')
 

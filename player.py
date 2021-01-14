@@ -3,7 +3,8 @@ from pygame import *
 import math
 import time
 
-WIN_WIDTH, WIN_HEIGHT = 1920, 1080
+WIN_WIDTH, WIN_HEIGHT = 800, 600
+# WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 
 JUMP_POWER = 10
 GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
@@ -34,7 +35,7 @@ class Bullet(sprite.Sprite):
     def update_bullet(self):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
-        if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000\
+        if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000 \
                 or self.rect.y - self.y0 == 3000 or self.y0 - self.rect.y == 3000:
             self.kill()
 
@@ -126,22 +127,44 @@ class Player(sprite.Sprite):
 
         a = abs(pos_mouse_x - x)
         b = abs(pos_mouse_y - y)
-        c = math.sqrt(math.pow(a, 2) + math.pow(b, 2))
 
-        count = c // self.speed
+        cos_alpha = (x * pos_mouse_x + y * pos_mouse_y) / \
+                    (math.sqrt(pow(x, 2) + pow(y, 2)) * math.sqrt(pow(pos_mouse_x, 2) + pow(pos_mouse_y, 2)))
 
-        if y < pos_mouse_y:
-            speed_y = b // count
-        elif y == pos_mouse_y:
-            speed_y = 0
-        else:
-            speed_y = -(b // count)
+        angel = abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(pos_mouse_y - y))) - 90)
+        print(f'angel: {angel} degrees')
+        print()
 
-        if x < pos_mouse_x:
-            speed_x = a // count
+        speed_x, speed_y = 0, 0
+
+        if x < pos_mouse_x and y > pos_mouse_y:
+            speed_x = math.cos(angel) * self.speed
+            speed_y = -(math.sin(angel) * self.speed)
+        elif x > pos_mouse_x and y > pos_mouse_y:
+            speed_x = -(math.cos(angel) * self.speed)
+            speed_y = -(math.sin(angel) * self.speed)
+        elif x > pos_mouse_x and y < pos_mouse_y:
+            speed_x = -(math.cos(angel) * self.speed)
+            speed_y = math.sin(angel) * self.speed
+        elif x < pos_mouse_x and y < pos_mouse_y:
+            speed_x = math.cos(angel) * self.speed
+            speed_y = math.sin(angel) * self.speed
         elif x == pos_mouse_x:
             speed_x = 0
-        else:
-            speed_x = -(a // count)
+            if y > pos_mouse_y:
+                speed_y = -(math.sin(angel) * self.speed)
+            elif y < pos_mouse_y:
+                speed_y = math.sin(angel) * self.speed
+            else:
+                speed_y = self.speed
+        elif y == pos_mouse_y:
+            speed_y = 0
+            if x > pos_mouse_x:
+                speed_x = math.cos(angel) * self.speed
+            elif x < pos_mouse_x:
+                speed_x = -(math.cos(angel) * self.speed)
+            else:
+                speed_x = 0
+                speed_y = self.speed
 
         return speed_x, speed_y
