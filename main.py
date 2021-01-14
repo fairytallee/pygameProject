@@ -7,7 +7,8 @@ from player import Player
 from player import Bullet
 
 
-WIN_WIDTH, WIN_HEIGHT = 1920, 1080
+# WIN_WIDTH, WIN_HEIGHT = 1920, 1080
+WIN_WIDTH, WIN_HEIGHT = 800, 600
 size = (WIN_WIDTH, WIN_HEIGHT)  # Группируем ширину и высоту в одну переменную
 
 pygame.init()  # Инициация PyGame, обязательная строчка
@@ -206,7 +207,9 @@ def main():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        hero.Shoot(entity_group)
+                        print(f"hero x: {hero.rect.centerx} y: {hero.rect.centery}")
+                        print(f"mouse: x: {pygame.mouse.get_pos()[0]} y: {pygame.mouse.get_pos()[1]}")
+                        hero.Shoot(entity_group, event.pos[0], event.pos[1])
                         bullet = list(entity_group)[-1]
                         bullet.update_bullet()
 

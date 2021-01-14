@@ -3,6 +3,8 @@ from pygame import *
 import math
 import time
 
+WIN_WIDTH, WIN_HEIGHT = 800, 600
+
 JUMP_POWER = 10
 GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
 
@@ -50,7 +52,7 @@ class Player(sprite.Sprite):
         self.image.fill(Color(COLOR))
         self.rect = Rect(x, y, WIDTH, HEIGHT)
         self.pos = (self.rect.x, self.rect.y)
-        self.speed = 10
+        self.speed = 5
 
     def update(self, left, right, up, platforms):
         if left:
@@ -95,9 +97,7 @@ class Player(sprite.Sprite):
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     self.yvel = 0  # и энергия прыжка пропадает
 
-    def Shoot(self, entity_group):
-        pos_mouse_x = pygame.mouse.get_pos()[0]
-        pos_mouse_y = pygame.mouse.get_pos()[1]
+    def Shoot(self, entity_group, pos_mouse_x, pos_mouse_y):
 
         if pos_mouse_x != self.rect.centerx or pos_mouse_y != self.rect.centery:
 
@@ -127,19 +127,23 @@ class Player(sprite.Sprite):
             bullets.add(bullet)
 
     def find_speed(self, pos_mouse_x, pos_mouse_y):
-        delta_x = pos_mouse_x - self.rect.centerx
+
+        x = WIN_WIDTH // 2
+        y = WIN_HEIGHT // 2
+
+        delta_x = pos_mouse_x - x
 
         count = delta_x // self.speed
 
-        if self.rect.centery >= pos_mouse_y:
-            delta_y = self.rect.centery - pos_mouse_y
+        if y >= pos_mouse_y:
+            delta_y = y - pos_mouse_y
             speed_y = delta_y // count
 
         else:
-            delta_y = pos_mouse_y - self.rect.centery
+            delta_y = pos_mouse_y - y
             speed_y = -(delta_y // count)
 
-        if self.rect.centerx >= pos_mouse_x:
+        if x >= pos_mouse_x:
             speed_x = -self.speed
         else:
             speed_x = self.speed
