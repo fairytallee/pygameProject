@@ -131,30 +131,24 @@ class Player(sprite.Sprite):
         x = WIN_WIDTH // 2
         y = WIN_HEIGHT // 2
 
-        delta_x = pos_mouse_x - x
+        a = abs(pos_mouse_x - x)
+        b = abs(pos_mouse_y - y)
+        c = math.pow(a, 2) + math.pow(b, 2)
 
-        count = delta_x // self.speed
+        count = c // self.speed
 
-        if y >= pos_mouse_y:
-            delta_y = y - pos_mouse_y
-            speed_y = delta_y // count
-
+        if y < pos_mouse_y:
+            speed_y = b // count
+        elif y == pos_mouse_y:
+            speed_y = 0
         else:
-            delta_y = pos_mouse_y - y
-            speed_y = -(delta_y // count)
+            speed_y = -(b // count)
 
-        if x >= pos_mouse_x:
-            speed_x = -self.speed
+        if x < pos_mouse_x:
+            speed_x = a // count
+        elif x == pos_mouse_x:
+            speed_x = 0
         else:
-            speed_x = self.speed
+            speed_x = -(a // count)
 
-        # a = abs(pos_mouse_x - self.rect.centerx)
-        # b = abs(self.rect.centery - pos_mouse_y)
-        # delta = a // self.speed
-        # speed_x = self.speed
-        # speed_y = b // delta
-        # if pos_mouse_x < self.rect.centerx:
-        #     speed_x *= -1
-        # if pos_mouse_y < self.rect.centery:
-        #     speed_y *= -1
         return speed_x, speed_y
