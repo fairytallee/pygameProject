@@ -206,9 +206,7 @@ def main():
 
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        hero.Shoot(entity_group)
-                        bullet = list(entity_group)[-1]
-                        bullet.update_bullet()
+                        hero.Shoot(entity_group, event.pos)
 
             screen.fill('black')
 
