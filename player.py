@@ -3,7 +3,7 @@ from pygame import *
 import math
 import time
 
-WIN_WIDTH, WIN_HEIGHT = 800, 600
+WIN_WIDTH, WIN_HEIGHT = 700, 700
 # WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 
 JUMP_POWER = 10
@@ -32,9 +32,17 @@ class Bullet(sprite.Sprite):
         self.speedx = speedx
         self.speedy = speedy
 
-    def update_bullet(self):
+    def collide(self, platforms):
+        for p in platforms:
+            if sprite.collide_rect(self, p):
+                self.kill()
+
+    def update_bullet(self, platforms):
         self.rect.x += self.speedx
         self.rect.y += self.speedy
+
+        self.collide(platforms)
+
         if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000 \
                 or self.rect.y - self.y0 == 3000 or self.y0 - self.rect.y == 3000:
             self.kill()
@@ -116,14 +124,14 @@ class Player(sprite.Sprite):
             bullets.add(bullet)
 
         else:
-            bullet = Bullet(self.rect.centerx, self.rect.centery, 0, 50)
+            bullet = Bullet(self.rect.centerx, self.rect.centery - 10, 0, 50)
             sprites.add(bullet)
             bullets.add(bullet)
 
     def find_speed(self, pos_mouse_x, pos_mouse_y):
 
         x = WIN_WIDTH // 2
-        y = WIN_HEIGHT // 2
+        y = WIN_HEIGHT // 2 + 25
 
         a = abs(pos_mouse_x - x)
         b = abs(pos_mouse_y - y)
@@ -131,15 +139,18 @@ class Player(sprite.Sprite):
         cos_alpha = (x * pos_mouse_x + y * pos_mouse_y) / \
                     (math.sqrt(pow(x, 2) + pow(y, 2)) * math.sqrt(pow(pos_mouse_x, 2) + pow(pos_mouse_y, 2)))
 
-        angel = abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(pos_mouse_y - y))) - 90)
+        angel = math.ceil(abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(pos_mouse_y - y))) - 90))
+        print(f"hero x: {x} y: {y}")
         print(f'angel: {angel} degrees')
+        print(f"mouse: x: {pos_mouse_x} y: {pos_mouse_y}")
         print()
+        angel = (math.radians(angel))
 
         speed_x, speed_y = 0, 0
 
         if x < pos_mouse_x and y > pos_mouse_y:
             speed_x = math.cos(angel) * self.speed
-            speed_y = -(math.sin(angel) * self.speed)
+            speed_y = -(math.sin(angel)) * self.speed
         elif x > pos_mouse_x and y > pos_mouse_y:
             speed_x = -(math.cos(angel) * self.speed)
             speed_y = -(math.sin(angel) * self.speed)
@@ -160,9 +171,9 @@ class Player(sprite.Sprite):
         elif y == pos_mouse_y:
             speed_y = 0
             if x > pos_mouse_x:
-                speed_x = math.cos(angel) * self.speed
-            elif x < pos_mouse_x:
                 speed_x = -(math.cos(angel) * self.speed)
+            elif x < pos_mouse_x:
+                speed_x = math.cos(angel) * self.speed
             else:
                 speed_x = 0
                 speed_y = self.speed
