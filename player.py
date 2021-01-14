@@ -3,7 +3,7 @@ from pygame import *
 import math
 import time
 
-WIN_WIDTH, WIN_HEIGHT = 800, 600
+WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 
 JUMP_POWER = 10
 GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
@@ -20,7 +20,8 @@ bullets = pygame.sprite.Group()
 class Bullet(sprite.Sprite):
     def __init__(self, x, y, speedx, speedy):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 10))
+        self.size = 10
+        self.image = pygame.Surface((self.size, self.size))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
         self.x0 = x
@@ -52,7 +53,7 @@ class Player(sprite.Sprite):
         self.image.fill(Color(COLOR))
         self.rect = Rect(x, y, WIDTH, HEIGHT)
         self.pos = (self.rect.x, self.rect.y)
-        self.speed = 5
+        self.speed = 15
 
     def update(self, left, right, up, platforms):
         if left:
@@ -100,14 +101,6 @@ class Player(sprite.Sprite):
     def Shoot(self, entity_group, pos_mouse_x, pos_mouse_y):
 
         if pos_mouse_x != self.rect.centerx or pos_mouse_y != self.rect.centery:
-
-            self.a = pos_mouse_x - self.rect.centerx
-            self.b = pos_mouse_y - self.rect.centery
-
-            fTime = pos_mouse_x // self.speed
-
-            speed_x = self.speed
-            speed_y = self.b // fTime
             # self.a = pos_mouse_x - self.rect.centerx
             # self.b = self.rect.centery - pos_mouse_y
             # self.c = math.hypot(self.a, self.b)
@@ -117,7 +110,7 @@ class Player(sprite.Sprite):
 
             speed_x, speed_y = self.find_speed(pos_mouse_x, pos_mouse_y)
 
-            bullet = Bullet(self.rect.centerx, self.rect.centery, speed_x, speed_y)
+            bullet = Bullet(self.rect.centerx - 5, self.rect.centery - 5, speed_x, speed_y)
             entity_group.add(bullet)
             bullets.add(bullet)
 
