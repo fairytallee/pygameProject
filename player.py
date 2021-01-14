@@ -16,25 +16,24 @@ bullets = pygame.sprite.Group()
 
 
 class Bullet(sprite.Sprite):
-    def __init__(self, x, y, speedx, click_pos):
+    def __init__(self, x, y, speedx, speedy):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((10, 10))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
+        self.x0 = x
+        self.y0 = y
         self.rect.x = x
         self.rect.y = y
         self.speedx = speedx
-        self.time = None
-        self.click_pos = click_pos
+        self.speedy = speedy
 
     def update_bullet(self):
-        if self.click_pos < self.rect.x:
-            self.rect.x -= self.speedx
-        if self.click_pos > self.rect.x:
-            self.rect.x += self.speedx
-        if self.time is not None:
-            if pygame.time.get_ticks() - self.time >= 2500:
-                self.kill()
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000\
+                or self.rect.y - self.y0 == 3000 or self.y0 - self.rect.y == 3000:
+            self.kill()
 
 
 class Player(sprite.Sprite):
@@ -96,17 +95,22 @@ class Player(sprite.Sprite):
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     self.yvel = 0  # и энергия прыжка пропадает
 
-    def Shoot(self, entity_group, click_pos):
-        pos_x = click_pos[0]
+    def Shoot(self, entity_group):
+        pos_x = pygame.mouse.get_pos()[0]
+        pos_y = pygame.mouse.get_pos()[1]
 
-        if pos_x != self.rect.centerx:
-            bullet = Bullet(self.rect.centerx, self.rect.centery, 20, pos_x)
-            bullet.time = pygame.time.get_ticks()
+        if pos_x != self.rect.centerx or pos_y != self.rect.centery:
+            self.a = pos_x - self.rect.centerx
+            self.b = self.rect.centery - pos_y
+            self.c = math.hypot(self.a, self.b)
+            self.t = self.c / self.speed
+            speed_x = self.a / self.t
+            speed_y = -self.b / self.t
+            bullet = Bullet(self.rect.centerx, self.rect.centery, speed_x, speed_y)
             entity_group.add(bullet)
             bullets.add(bullet)
 
         else:
-            bullet = Bullet(self.rect.centerx, self.rect.centery, 0, pos_x)
-            bullet.time = pygame.time.get_ticks()
+            bullet = Bullet(self.rect.centerx, self.rect.centery, 0, 50)
             sprites.add(bullet)
             bullets.add(bullet)
