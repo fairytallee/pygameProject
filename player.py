@@ -133,7 +133,7 @@ class Player(sprite.Sprite):
 
         a = abs(pos_mouse_x - x)
         b = abs(pos_mouse_y - y)
-        c = math.pow(a, 2) + math.pow(b, 2)
+        c = math.sqrt(math.pow(a, 2) + math.pow(b, 2))
 
         count = c // self.speed
 
