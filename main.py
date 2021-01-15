@@ -1,7 +1,7 @@
 import pygame
 from pygame import *
 import os
-
+import pyautogui
 
 from player import Player
 from player import Bullet
