@@ -3,15 +3,19 @@ from pygame import *
 import math
 import time
 
-WIN_WIDTH, WIN_HEIGHT = 700, 700
-# WIN_WIDTH, WIN_HEIGHT = 1920, 1080
+# WIN_WIDTH, WIN_HEIGHT = 700, 700
+WIN_WIDTH, WIN_HEIGHT = 1920, 1080
 
 JUMP_POWER = 10
 GRAVITY = 0.35  # Сила, которая будет тянуть нас вниз
 
-MOVE_SPEED = 7
-WIDTH = 20
-HEIGHT = 50
+HERO_MOVE_SPEED = 7
+HERO_WIDTH = 20
+HERO_HEIGHT = 50
+
+BULLET_SIZE = 10
+BULLET_SPEED = 20
+
 COLOR = "white"
 
 sprites = pygame.sprite.Group()
@@ -21,8 +25,7 @@ bullets = pygame.sprite.Group()
 class Bullet(sprite.Sprite):
     def __init__(self, x, y, speedx, speedy):
         pygame.sprite.Sprite.__init__(self)
-        self.size = 10
-        self.image = pygame.Surface((self.size, self.size))
+        self.image = pygame.Surface((BULLET_SIZE, BULLET_SIZE))
         self.image.fill((0, 0, 255))
         self.rect = self.image.get_rect()
         self.x0 = x
@@ -33,13 +36,14 @@ class Bullet(sprite.Sprite):
         self.speedy = speedy
 
     def collide(self, platforms):
+        pass
         for p in platforms:
             if sprite.collide_rect(self, p):
                 self.kill()
 
     def update_bullet(self, platforms):
-        self.rect.x += self.speedx
-        self.rect.y += self.speedy
+        self.rect.centerx += self.speedx
+        self.rect.centery += self.speedy
 
         self.collide(platforms)
 
@@ -48,28 +52,78 @@ class Bullet(sprite.Sprite):
             self.kill()
 
 
+def find_speed(pos_mouse_x, pos_mouse_y):
+
+    x = WIN_WIDTH // 2
+    y = WIN_HEIGHT // 2 + 20
+
+    angel = math.radians(abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(y - pos_mouse_y))) - 90))
+
+    print(f"hero x: {x} y: {y}")
+    print(f'angel: {math.degrees(angel)} degrees')
+    print(f"mouse: x: {pos_mouse_x} y: {pos_mouse_y}")
+    print()
+
+    speed_x, speed_y = 0, 0
+
+    if x < pos_mouse_x and y > pos_mouse_y:
+        speed_x = math.cos(angel) * BULLET_SPEED
+        speed_y = -(math.sin(angel)) * BULLET_SPEED
+    elif x > pos_mouse_x and y > pos_mouse_y:
+        speed_x = -(math.cos(angel) * BULLET_SPEED)
+        speed_y = -(math.sin(angel) * BULLET_SPEED)
+    elif x > pos_mouse_x and y < pos_mouse_y:
+        speed_x = -(math.cos(angel) * BULLET_SPEED)
+        speed_y = math.sin(angel) * BULLET_SPEED
+    elif x < pos_mouse_x and y < pos_mouse_y:
+        speed_x = math.cos(angel) * BULLET_SPEED
+        speed_y = math.sin(angel) * BULLET_SPEED
+    elif x == pos_mouse_x:
+        speed_x = 0
+        if y > pos_mouse_y:
+            speed_y = -BULLET_SPEED
+        elif y < pos_mouse_y:
+            speed_y = BULLET_SPEED
+        else:
+            speed_y = BULLET_SPEED
+    elif y == pos_mouse_y:
+        speed_y = 0
+        if x > pos_mouse_x:
+            speed_x = -BULLET_SPEED
+        elif x < pos_mouse_x:
+            speed_x = BULLET_SPEED
+        else:
+            speed_x = 0
+            speed_y = BULLET_SPEED
+
+    return speed_x, speed_y
+
+
 class Player(sprite.Sprite):
     def __init__(self, x, y):
         sprite.Sprite.__init__(self)
 
-        self.yvel = 0  # скорость вертикального перемещения
         self.onGround = False  # На земле ли я?
 
+        self.yvel = 0  # скорость вертикального перемещения
         self.xvel = 0  # скорость перемещения. 0 - стоять на месте
+
         self.startX = x  # Начальная позиция Х, пригодится когда будем переигрывать уровень
         self.startY = y
-        self.image = Surface((WIDTH, HEIGHT))
+
+        self.image = Surface((HERO_WIDTH, HERO_HEIGHT))
         self.image.fill(Color(COLOR))
-        self.rect = Rect(x, y, WIDTH, HEIGHT)
+        self.rect = Rect(x, y, HERO_WIDTH, HERO_HEIGHT)
         self.pos = (self.rect.x, self.rect.y)
-        self.speed = 15
+
+        self.bullet_speed = 20
 
     def update(self, left, right, up, platforms):
         if left:
-            self.xvel = -MOVE_SPEED  # Лево = x- n
+            self.xvel = -HERO_MOVE_SPEED  # Лево = x- n
 
         if right:
-            self.xvel = MOVE_SPEED  # Право = x + n
+            self.xvel = HERO_MOVE_SPEED  # Право = x + n
 
         if not (left or right):  # стоим, когда нет указаний идти
             self.xvel = 0
@@ -107,75 +161,11 @@ class Player(sprite.Sprite):
                     self.rect.top = p.rect.bottom  # то не движется вверх
                     self.yvel = 0  # и энергия прыжка пропадает
 
-    def Shoot(self, entity_group, pos_mouse_x, pos_mouse_y):
+    def shoot(self, entity_group, pos_mouse_x, pos_mouse_y):
 
-        if pos_mouse_x != self.rect.centerx or pos_mouse_y != self.rect.centery:
-            # self.a = pos_mouse_x - self.rect.centerx
-            # self.b = self.rect.centery - pos_mouse_y
-            # self.c = math.hypot(self.a, self.b)
-            # self.t = self.c / self.speed
-            # speed_x = self.a / self.t
-            # speed_y = -self.b / self.t
+        speed_x, speed_y = find_speed(pos_mouse_x, pos_mouse_y)
 
-            speed_x, speed_y = self.find_speed(pos_mouse_x, pos_mouse_y)
-
-            bullet = Bullet(self.rect.centerx - 5, self.rect.centery - 5, speed_x, speed_y)
-            entity_group.add(bullet)
-            bullets.add(bullet)
-
-        else:
-            bullet = Bullet(self.rect.centerx, self.rect.centery - 10, 0, 50)
-            sprites.add(bullet)
-            bullets.add(bullet)
-
-    def find_speed(self, pos_mouse_x, pos_mouse_y):
-
-        x = WIN_WIDTH // 2
-        y = WIN_HEIGHT // 2 + 25
-
-        a = abs(pos_mouse_x - x)
-        b = abs(pos_mouse_y - y)
-
-        cos_alpha = (x * pos_mouse_x + y * pos_mouse_y) / \
-                    (math.sqrt(pow(x, 2) + pow(y, 2)) * math.sqrt(pow(pos_mouse_x, 2) + pow(pos_mouse_y, 2)))
-
-        angel = math.ceil(abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(pos_mouse_y - y))) - 90))
-        print(f"hero x: {x} y: {y}")
-        print(f'angel: {angel} degrees')
-        print(f"mouse: x: {pos_mouse_x} y: {pos_mouse_y}")
-        print()
-        angel = (math.radians(angel))
-
-        speed_x, speed_y = 0, 0
-
-        if x < pos_mouse_x and y > pos_mouse_y:
-            speed_x = math.cos(angel) * self.speed
-            speed_y = -(math.sin(angel)) * self.speed
-        elif x > pos_mouse_x and y > pos_mouse_y:
-            speed_x = -(math.cos(angel) * self.speed)
-            speed_y = -(math.sin(angel) * self.speed)
-        elif x > pos_mouse_x and y < pos_mouse_y:
-            speed_x = -(math.cos(angel) * self.speed)
-            speed_y = math.sin(angel) * self.speed
-        elif x < pos_mouse_x and y < pos_mouse_y:
-            speed_x = math.cos(angel) * self.speed
-            speed_y = math.sin(angel) * self.speed
-        elif x == pos_mouse_x:
-            speed_x = 0
-            if y > pos_mouse_y:
-                speed_y = -(math.sin(angel) * self.speed)
-            elif y < pos_mouse_y:
-                speed_y = math.sin(angel) * self.speed
-            else:
-                speed_y = self.speed
-        elif y == pos_mouse_y:
-            speed_y = 0
-            if x > pos_mouse_x:
-                speed_x = -(math.cos(angel) * self.speed)
-            elif x < pos_mouse_x:
-                speed_x = math.cos(angel) * self.speed
-            else:
-                speed_x = 0
-                speed_y = self.speed
-
-        return speed_x, speed_y
+        bullet = Bullet(self.rect.centerx - (BULLET_SIZE // 2),
+                        self.rect.centery - (BULLET_SIZE // 2), speed_x, speed_y)
+        entity_group.add(bullet)
+        bullets.add(bullet)
