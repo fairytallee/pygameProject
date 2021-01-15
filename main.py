@@ -1,10 +1,11 @@
 import pygame
 from pygame import *
 import os
-
+import pyautogui
 
 from player import Player
 from player import Bullet
+from Enemies import Enemy
 
 # WIN_WIDTH, WIN_HEIGHT = 700, 700
 WIN_WIDTH, WIN_HEIGHT = 1920, 1080
@@ -85,6 +86,9 @@ def generate_level(level):
                 ll = list(level[y])
                 ll[x] = '.'
                 level[y] = ll
+            elif level[y][x] == 'e':
+                new_enemy = Enemy(PLATFORM_WIDTH * (x - 1), PLATFORM_HEIGHT * y)
+                enemy_group.add(new_enemy)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
@@ -131,6 +135,7 @@ tiles_group = SpriteGroup()
 all_sprites = SpriteGroup()
 entity_group = SpriteGroup()
 bullet_group = SpriteGroup()
+enemy_group = SpriteGroup()
 
 level_map = load_level('map.map')
 
@@ -209,6 +214,9 @@ def main():
                         hero.shoot(entity_group, pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
                         bullet = list(entity_group)[-1]
                         bullet.update_bullet(tiles_group)
+                        hits = sprite.spritecollide(hero, enemy_group, True)
+                        if hits:
+                            running = False
 
             screen.fill('black')
 
@@ -223,6 +231,8 @@ def main():
             for e in entity_group:
                 screen.blit(e.image, camera.apply(e))
             hero.update(left, right, up, tiles_group)
+            for en in enemy_group:
+                en.update(tiles_group)
 
         elif state == pause:
             for event in pygame.event.get():  # Обрабатываем события
