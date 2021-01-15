@@ -23,7 +23,7 @@ class Bullet(sprite.Sprite):
         pygame.sprite.Sprite.__init__(self)
         self.size = 10
         self.image = pygame.Surface((self.size, self.size))
-        self.image.fill((0, 0, 255))
+        self.image.fill('yellow')
         self.rect = self.image.get_rect()
         self.x0 = x
         self.y0 = y
@@ -31,6 +31,7 @@ class Bullet(sprite.Sprite):
         self.rect.y = y
         self.speedx = speedx
         self.speedy = speedy
+        self.time = None
 
     def collide(self, platforms):
         for p in platforms:
@@ -43,8 +44,7 @@ class Bullet(sprite.Sprite):
 
         self.collide(platforms)
 
-        if self.rect.x - self.x0 == 3000 or self.x0 - self.rect.x == 3000 \
-                or self.rect.y - self.y0 == 3000 or self.y0 - self.rect.y == 3000:
+        if pygame.time.get_ticks() - self.time >= 1500:
             self.kill()
 
 
@@ -110,21 +110,15 @@ class Player(sprite.Sprite):
     def Shoot(self, entity_group, pos_mouse_x, pos_mouse_y):
 
         if pos_mouse_x != self.rect.centerx or pos_mouse_y != self.rect.centery:
-            # self.a = pos_mouse_x - self.rect.centerx
-            # self.b = self.rect.centery - pos_mouse_y
-            # self.c = math.hypot(self.a, self.b)
-            # self.t = self.c / self.speed
-            # speed_x = self.a / self.t
-            # speed_y = -self.b / self.t
-
             speed_x, speed_y = self.find_speed(pos_mouse_x, pos_mouse_y)
-
             bullet = Bullet(self.rect.centerx - 5, self.rect.centery - 5, speed_x, speed_y)
+            bullet.time = pygame.time.get_ticks()
             entity_group.add(bullet)
             bullets.add(bullet)
 
         else:
             bullet = Bullet(self.rect.centerx, self.rect.centery - 10, 0, 50)
+            bullet.time = pygame.time.get_ticks()
             sprites.add(bullet)
             bullets.add(bullet)
 
@@ -133,17 +127,13 @@ class Player(sprite.Sprite):
         x = WIN_WIDTH // 2
         y = WIN_HEIGHT // 2 + 25
 
-        a = abs(pos_mouse_x - x)
-        b = abs(pos_mouse_y - y)
+        # a = abs(pos_mouse_x - x)
+        # b = abs(pos_mouse_y - y)
 
-        cos_alpha = (x * pos_mouse_x + y * pos_mouse_y) / \
-                    (math.sqrt(pow(x, 2) + pow(y, 2)) * math.sqrt(pow(pos_mouse_x, 2) + pow(pos_mouse_y, 2)))
+        # cos_alpha = (x * pos_mouse_x + y * pos_mouse_y) / \
+        #            (math.sqrt(pow(x, 2) + pow(y, 2)) * math.sqrt(pow(pos_mouse_x, 2) + pow(pos_mouse_y, 2)))
 
         angel = math.ceil(abs(math.degrees(math.atan2(abs(pos_mouse_x - x), abs(pos_mouse_y - y))) - 90))
-        print(f"hero x: {x} y: {y}")
-        print(f'angel: {angel} degrees')
-        print(f"mouse: x: {pos_mouse_x} y: {pos_mouse_y}")
-        print()
         angel = (math.radians(angel))
 
         speed_x, speed_y = 0, 0
