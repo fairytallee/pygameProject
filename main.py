@@ -5,6 +5,7 @@ import os
 
 from player import Player
 from player import Bullet
+from Enemies import Enemy
 
 
 WIN_WIDTH, WIN_HEIGHT = 1920, 1080
@@ -73,7 +74,7 @@ class Tile(Sprite):
 
 
 def generate_level(level):
-    new_player, x, y = None, None, None
+    new_player, new_enemy, x, y = None, None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
@@ -85,8 +86,12 @@ def generate_level(level):
                 ll = list(level[y])
                 ll[x] = '.'
                 level[y] = ll
+            elif level[y][x] == 'e':
+                new_enemy = Enemy(PLATFORM_WIDTH * (x - 1), PLATFORM_HEIGHT * y)
+                enemy_group.add(new_enemy)
+
     # вернем игрока, а также размер поля в клетках
-    return new_player, x, y
+    return new_player, new_enemy, x, y
 
 
 class Camera(object):
@@ -131,11 +136,13 @@ tiles_group = SpriteGroup()
 all_sprites = SpriteGroup()
 entity_group = SpriteGroup()
 bullet_group = SpriteGroup()
+enemy_group = SpriteGroup()
 
 level_map = load_level('map.map')
 
-hero, max_x, max_y = generate_level(level_map)
+hero, enemy, max_x, max_y = generate_level(level_map)
 entity_group.add(hero)
+entity_group.add(enemy)
 
 total_level_width = (max_x + 1) * PLATFORM_WIDTH  # Высчитываем фактическую ширину уровня
 total_level_height = (max_y + 1) * PLATFORM_HEIGHT  # высоту
@@ -171,7 +178,7 @@ def menu_pause(screen):
 
 
 def main():
-    global left, right, up, hero
+    global left, right, up, hero, enemy
     pygame.display.set_caption("test")
 
     running, pause, process = 1, 0, True
@@ -219,7 +226,12 @@ def main():
             for bul in entity_group:
                 if isinstance(bul, Bullet):
                     bul.update_bullet()
+            hits = sprite.spritecollide(hero, enemy_group, True)
+            if hits:
+                process = False
+
             hero.update(left, right, up, tiles_group)
+            enemy.update(tiles_group)
 
         elif state == pause:
             for event in pygame.event.get():  # Обрабатываем события
